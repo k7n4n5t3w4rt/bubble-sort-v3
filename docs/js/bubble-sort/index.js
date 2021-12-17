@@ -52,41 +52,42 @@ export function bubbleSortFactory(
     i /*: number */,
     end /*: number */,
   ) /* void */ {
-    if (config.LOOP && end === 1) {
-      return reloadIfFinishedLooping(config.RELOAD_INTERVAL);
-    }
-    D.setCellDisplay(
-      i,
-      "add",
-      "active",
-      config.CONTAINER_ID,
-      config.SHOW_WORKING,
-    );
-    swap(a, i - 1, i).then((a) => {
+    if (end > 1) {
       D.setCellDisplay(
         i,
-        "remove",
+        "add",
         "active",
         config.CONTAINER_ID,
         config.SHOW_WORKING,
       );
-      D.setCellDisplay(
-        i - 1,
-        "remove",
-        "min",
-        config.CONTAINER_ID,
-        config.SHOW_WORKING,
-      );
-      // Normally, just increment i
-      ++i;
-      // Except if we're at the end, in which
-      // case start again
-      if (end === i) {
-        end = i - 1;
-        i = 1;
-      }
-      pauseAndLoop(a, i, end);
-    });
+      swap(a, i - 1, i).then((a) => {
+        D.setCellDisplay(
+          i,
+          "remove",
+          "active",
+          config.CONTAINER_ID,
+          config.SHOW_WORKING,
+        );
+        D.setCellDisplay(
+          i - 1,
+          "remove",
+          "min",
+          config.CONTAINER_ID,
+          config.SHOW_WORKING,
+        );
+        // Normally, just increment i
+        ++i;
+        // Except if we're at the end, in which
+        // case start again
+        if (end === i) {
+          end = i - 1;
+          i = 1;
+        }
+        pauseAndLoop(a, i, end);
+      });
+    } else if (config.LOOP) {
+      return reloadIfFinishedLooping(config.RELOAD_INTERVAL);
+    }
   }
 
   function reloadIfFinishedLooping(reloadInterval /*: number */) /*: void */ {
