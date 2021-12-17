@@ -46,11 +46,11 @@ const BubbleSort /*: function */ = (props /*: Props */) => {
         parseInt(props.max_seconds_transition_interval) || 1,
       COLS: parseInt(props.cols) || 4,
       ROWS: parseInt(props.rows) || 4,
-      SHOW_WORKING: props.show_working === "true" || false,
-      LOOP: props.loop === "true" || false,
+      SHOW_WORKING: props.show_working === "true" ? true : false,
+      LOOP: props.loop === "false" ? false : true,
       RELOAD_INTERVAL: parseInt(props.reload_interval) | 2000,
       CONSTANT_TRANSITION_SPEED:
-        props.constant_transition_speed === "true" || false,
+        props.constant_transition_speed === "false" ? false : true,
       CONTAINER_ID: props.containerId,
     };
     // --------------------------------- //
