@@ -51,15 +51,12 @@ const BubbleSort /*: function */ = (props /*: Props */) => {
       RELOAD_INTERVAL: parseInt(props.reload_interval) | 2000,
       CONSTANT_TRANSITION_SPEED:
         props.constant_transition_speed === "true" || false,
-      FINISH_COUNTER: props.finishCounter,
       CONTAINER_ID: props.containerId,
     };
     // --------------------------------- //
     // BUBBLE SORT
     // --------------------------------- //
     const bubbleSort = bubbleSortFactory(bubbleConf, gridDisplay);
-    // I shouldn't, but I am. Adding this algorithm  to the FINISH_COUNTER.ALGORITHMS prop
-    bubbleConf.FINISH_COUNTER.ALGORITHMS.push(bubbleSort);
     bubbleSort.run();
   }, []);
   return html`

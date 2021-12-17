@@ -1,12 +1,12 @@
 // @flow
 /* eslint-env browser */
 
-export function bubbleSortFactory (
+export function bubbleSortFactory(
   {
-    CONTAINER_ID = '',
+    CONTAINER_ID = "",
     SHOW_WORKING = true,
     FPS = 10,
-    ACCELLERATION = 1,
+    ACCELLERATION = 100,
     CLICK = 1,
     COLS = 3,
     ROWS = 3,
@@ -14,9 +14,8 @@ export function bubbleSortFactory (
     CONSTANT_TRANSITION_SPEED = false,
     LOOP = true,
     RELOAD_INTERVAL = 1000,
-    FINISH_COUNTER = {}
   } /*: Object */,
-  gridDisplay /*: function */
+  gridDisplay /*: function */,
 ) /*: Object */ {
   const config = {
     CONTAINER_ID,
@@ -30,209 +29,208 @@ export function bubbleSortFactory (
     CONSTANT_TRANSITION_SPEED,
     LOOP,
     RELOAD_INTERVAL,
-    FINISH_COUNTER
-  }
+  };
   // The display
-  const D = gridDisplay()
-  config.CLICK = D.getClick(config.SHOW_WORKING, config.FPS, config.ACCELLERATION)
+  const D = gridDisplay();
+  config.CLICK = D.getClick(
+    config.SHOW_WORKING,
+    config.FPS,
+    config.ACCELLERATION,
+  );
 
-  function run () /*: void */ {
+  function run() /*: void */ {
     // The input
-    const a = makeArrayToSort(config.COLS, config.ROWS)
-    D.displayGrid(
-      a,
-      config.COLS,
-      config.ROWS,
-      config.CONTAINER_ID
-    )
-    D.enableShowWorkingToggleControl(config)
+    const a = makeArrayToSort(config.COLS, config.ROWS);
+    D.displayGrid(a, config.COLS, config.ROWS, config.CONTAINER_ID);
+    D.enableShowWorkingToggleControl(config);
     // The algorithm
-    loop(a, 1, a.length)
+    loop(a, 1, a.length);
   }
 
-  function loop (
+  function loop(
     a /*: Array<Object> */,
     i /*: number */,
-    end /*: number */
+    end /*: number */,
   ) /* void */ {
-    if (
-      config.LOOP &&
-        end === 1
-    ) {
-      return reloadIfFinishedLooping(config.RELOAD_INTERVAL)
+    if (config.LOOP && end === 1) {
+      return reloadIfFinishedLooping(config.RELOAD_INTERVAL);
     }
-    D.setCellDisplay(i, 'add', 'active', config.CONTAINER_ID, config.SHOW_WORKING)
-    swap(a, i - 1, i)
-      .then((a) => {
-        D.setCellDisplay(i, 'remove', 'active', config.CONTAINER_ID, config.SHOW_WORKING)
-        D.setCellDisplay(i - 1, 'remove', 'min', config.CONTAINER_ID, config.SHOW_WORKING)
-        // Normally, just increment i
-        ++i
-        // Except if we're at the end, in which
-        // case start again
-        if (end === i) {
-          end = i - 1
-          i = 1
-        }
-        pauseAndLoop(a, i, end)
-      })
-  }
-
-  function thereAreMultipleAlgorithmsOnView () /*: boolean */ {
-    // TODO: Put in a @flow type for the config object
-    if (
-      config.FINISH_COUNTER &&
-      config.FINISH_COUNTER.ALGORITHMS &&
-      config.FINISH_COUNTER.ALGORITHMS.length > 1
-    ) {
-      return true
-    }
-    return false
-  }
-
-  function allAlgorithmsHaveFinished () {
-    if (!thereAreMultipleAlgorithmsOnView()) {
-      return true
-    }
-    if (
-      thereAreMultipleAlgorithmsOnView()
-    ) {
-      ++config.FINISH_COUNTER.COUNT
-      if (
-        config.FINISH_COUNTER.COUNT === config.FINISH_COUNTER.ALGORITHMS.length
-      ) {
-        config.FINISH_COUNTER.COUNT = 0
-        return true
+    D.setCellDisplay(
+      i,
+      "add",
+      "active",
+      config.CONTAINER_ID,
+      config.SHOW_WORKING,
+    );
+    swap(a, i - 1, i).then((a) => {
+      D.setCellDisplay(
+        i,
+        "remove",
+        "active",
+        config.CONTAINER_ID,
+        config.SHOW_WORKING,
+      );
+      D.setCellDisplay(
+        i - 1,
+        "remove",
+        "min",
+        config.CONTAINER_ID,
+        config.SHOW_WORKING,
+      );
+      // Normally, just increment i
+      ++i;
+      // Except if we're at the end, in which
+      // case start again
+      if (end === i) {
+        end = i - 1;
+        i = 1;
       }
-    }
-    return false
+      pauseAndLoop(a, i, end);
+    });
   }
 
-  function reloadIfFinishedLooping (
-    reloadInterval /*: number */
-  ) /*: void */ {
-    if (allAlgorithmsHaveFinished()) {
-      setReload(reloadInterval)
-    }
+  function reloadIfFinishedLooping(reloadInterval /*: number */) /*: void */ {
+    setReload(reloadInterval);
   }
 
-  function toggleShowWorking () /*: void */ {
-    config.SHOW_WORKING = !config.SHOW_WORKING
-    config.CLICK = D.getClick(config.SHOW_WORKING, config.FPS, config.ACCELLERATION)
+  function toggleShowWorking() /*: void */ {
+    config.SHOW_WORKING = !config.SHOW_WORKING;
+    config.CLICK = D.getClick(
+      config.SHOW_WORKING,
+      config.FPS,
+      config.ACCELLERATION,
+    );
     D.clearShowWorkingCellsDisplay(
       config.COLS,
       config.ROWS,
-      config.CONTAINER_ID
-    )
+      config.CONTAINER_ID,
+    );
   }
 
-  function pauseAndLoop (
+  function pauseAndLoop(
     a /*: Array<Object> */,
     i /*: number */,
-    end /*: number */
+    end /*: number */,
   ) /*: void */ {
     setTimeout(() => {
-      loop(a, i, end)
-    }, config.CLICK * 1)
+      loop(a, i, end);
+    }, config.CLICK * 1);
   }
 
-  function swap (
+  function swap(
     a /*: Array<Object> */,
     _1 /*: number */,
-    _2 /*: number */
+    _2 /*: number */,
   ) /*: Promise<Array<Object>> */ {
-    return setDisplayOnPreviousElement(a, _1)
-      .then(() => {
-        return checkCurrentWithPrevious(a, _1, _2)
-          .then((a) => {
-            return D.swapCells(
-              a,
-              _1,
-              _2,
-              config.CONTAINER_ID,
-              config.CONSTANT_TRANSITION_SPEED,
-              config.MAX_SECONDS_TRANSITION_INTERVAL,
-              config.COLS, config.ROWS
-            )
-              .then((a) => {
-                return swapArrayElements(a, _1, _2)
-              })
-          })
-          .catch((e) => {
-            return Promise.resolve(a)
-          })
-      })
+    return setDisplayOnPreviousElement(a, _1).then(() => {
+      return checkCurrentWithPrevious(a, _1, _2)
+        .then((a) => {
+          return D.swapCells(
+            a,
+            _1,
+            _2,
+            config.CONTAINER_ID,
+            config.CONSTANT_TRANSITION_SPEED,
+            config.MAX_SECONDS_TRANSITION_INTERVAL,
+            config.COLS,
+            config.ROWS,
+          ).then((a) => {
+            return swapArrayElements(a, _1, _2);
+          });
+        })
+        .catch((e) => {
+          return Promise.resolve(a);
+        });
+    });
   }
 
-  function setDisplayOnPreviousElement (
+  function setDisplayOnPreviousElement(
     a /*: Array<Object> */,
-    _1 /*: number */
+    _1 /*: number */,
   ) /*: Promise<Array<Object>> */ {
     return new Promise((resolve, reject) => {
       setTimeout(() => {
-        D.setCellDisplay(_1, 'add', 'actively-looking', config.CONTAINER_ID, config.SHOW_WORKING)
-        return resolve(a)
-      }, config.CLICK * 1)
-    })
+        D.setCellDisplay(
+          _1,
+          "add",
+          "actively-looking",
+          config.CONTAINER_ID,
+          config.SHOW_WORKING,
+        );
+        return resolve(a);
+      }, config.CLICK * 1);
+    });
   }
 
-  function checkCurrentWithPrevious (
+  function checkCurrentWithPrevious(
     a /*: Array<Object> */,
     _1 /*: number */,
-    _2 /*: number */
+    _2 /*: number */,
   ) /*: Promise<Array<Object>> */ {
     return new Promise((resolve, reject) => {
       setTimeout(() => {
         if (a[_1].value > a[_2].value) {
-          D.setCellDisplay(_1, 'remove', 'actively-looking', config.CONTAINER_ID, config.SHOW_WORKING)
-          D.setCellDisplay(_1, 'add', 'min', config.CONTAINER_ID, config.SHOW_WORKING)
-          return resolve(a)
+          D.setCellDisplay(
+            _1,
+            "remove",
+            "actively-looking",
+            config.CONTAINER_ID,
+            config.SHOW_WORKING,
+          );
+          D.setCellDisplay(
+            _1,
+            "add",
+            "min",
+            config.CONTAINER_ID,
+            config.SHOW_WORKING,
+          );
+          return resolve(a);
         } else {
-          D.setCellDisplay(_1, 'remove', 'actively-looking', config.CONTAINER_ID, config.SHOW_WORKING)
-          return reject(a)
+          D.setCellDisplay(
+            _1,
+            "remove",
+            "actively-looking",
+            config.CONTAINER_ID,
+            config.SHOW_WORKING,
+          );
+          return reject(a);
         }
-      }, config.CLICK * 1)
-    })
+      }, config.CLICK * 1);
+    });
   }
 
-  function swapArrayElements (
+  function swapArrayElements(
     a /*: Array<Object> */,
     _1 /*: number */,
-    _2 /*: number */
+    _2 /*: number */,
   ) {
-    const tmpValue = a[_1].value
-    a[_1].value = a[_2].value
-    a[_2].value = tmpValue
-    return a
+    const tmpValue = a[_1].value;
+    a[_1].value = a[_2].value;
+    a[_2].value = tmpValue;
+    return a;
   }
 
-  function makeArrayToSort (
+  function makeArrayToSort(
     cols /*: number */,
-    rows /*: number */
+    rows /*: number */,
   ) /*: Array<Object> */ {
-    const numItems = cols * rows
-    const a = []
-    let randomNumber = 0
+    const numItems = cols * rows;
+    const a = [];
+    let randomNumber = 0;
     for (let i = 0; i < numItems; i++) {
-      randomNumber = Math.random()
+      randomNumber = Math.random();
       a.push({
         value: randomNumber,
-        id: '_' + i.toString()
-      })
+        id: "_" + i.toString(),
+      });
     }
-    return a
+    return a;
   }
 
-  function setReload (
-    reloadInterval /*: number */
-  ) /*: void */ {
-    if (thereAreMultipleAlgorithmsOnView()) {
-      config.FINISH_COUNTER.ALGORITHMS.forEach((algorithm) => {
-        setTimeout(() => { algorithm.run() }, reloadInterval)
-      })
-    } else {
-      setTimeout(() => { run() }, reloadInterval)
-    }
+  function setReload(reloadInterval /*: number */) /*: void */ {
+    setTimeout(() => {
+      run();
+    }, reloadInterval);
   }
 
   return {
@@ -247,6 +245,5 @@ export function bubbleSortFactory (
     makeArrayToSort,
     setReload,
     toggleShowWorking,
-    allAlgorithmsHaveFinished
-  }
+  };
 }
